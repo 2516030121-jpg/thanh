@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng Thực Phẩm Dinh Dưỡng & Thiết Bị Y Tế</title>
+    <style>
+        /* --- Giao diện cơ bản (CSS) --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        header {
+            background-color: #2ecc71;
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .search-container {
+            max-width: 500px;
+            margin: 1.5rem auto 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 8px rgba(39, 174, 96, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #eaeaea;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-tag {
+            background-color: #e8f8f5;
+            color: #1abc9c;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 15px;
+            align-self: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: auto;
+            margin-bottom: 1rem;
+        }
+
+        .btn-order {
+            display: block;
+            text-align: center;
+            background-color: #27ae60;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-order:hover {
+            background-color: #219653;
+        }
+
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        /* --- CSS POPUP (MODAL) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #95a5a6;
+        }
+
+        .modal-box h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #27ae60;
+        }
+
+        #qrSection {
+            display: none;
+            text-align: center;
+        }
+
+        .qr-card-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 1rem auto;
+            max-width: 320px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .qr-header-info {
+            text-align: left;
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .qr-code {
+            width: 100%;
+            max-width: 240px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .payment-alert {
+            background-color: #e8f8f5;
+            color: #117a65;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: #2c3e50;
+            color: white;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Dinh Dưỡng & Thiết Bị Y Tế Chính Hãng</h1>
+        <p>Chăm sóc sức khỏe toàn diện cho gia đình bạn</p>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Nhập tên sản phẩm cần tìm..." onkeyup="searchProducts()">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="product-grid" id="productGrid"></div>
+        <div class="no-results" id="noResults">Không tìm thấy sản phẩm phù hợp.</div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            
+            <form id="orderForm" onsubmit="handlePayment(event)">
+                <h2>Thông Tin Đặt Hàng</h2>
+                <div class="form-group">
+                    <label>Sản phẩm đã chọn</label>
+                    <input type="text" id="formProductTitle" readonly style="background: #f0f0f0; font-weight: bold;">
+                </div>
+                <div class="form-group">
+                    <label>Họ và Tên <span style="color:red">*</span></label>
+                    <input type="text" id="cusName" required placeholder="Nguyễn Văn A">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại <span style="color:red">*</span></label>
+                    <input type="tel" id="cusPhone" required placeholder="0901234567">
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ nhận hàng <span style="color:red">*</span></label>
+                    <textarea id="cusAddress" rows="3" required placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+                </div>
+                <button type="submit" class="btn-order" style="width: 100%;">Xác nhận & Thanh toán</button>
+            </form>
+
+            <div id="qrSection">
+                <h2>Quét Mã Qua Ứng Dụng Ngân Hàng</h2>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;">Mã QR đã tự động điền số tiền sản phẩm.</p>
+                
+                <div class="qr-card-container">
+                    <div class="qr-header-info">
+                        <strong>Chủ TK:</strong> DANG NGOC TIEN THANH<br>
+                        <strong>Số TK:</strong> 0828380330 (MB Bank)
+                    </div>
+                    <img id="qrImage" src="" alt="Mã QR Thanh Toán" class="qr-code">
+                </div>
+                
+                <div id="orderSummary" style="font-size: 1.1rem; font-weight: bold; color: #e74c3c; margin: 10px 0;"></div>
+                <div id="transferMemo" style="font-size: 0.9rem; color: #2c3e50; margin-bottom: 10px; background: #f8fafc; padding: 6px; border-radius: 4px;"></div>
+                
+                <div class="payment-alert">
+                     <strong>Đã lưu thông tin đặt hàng!</strong><br>Hệ thống đã ghi nhận đơn hàng lên Google Sheets. Cửa hàng sẽ gọi điện xác minh ngay khi nhận được chuyển khoản.
+                </div>
+                <button onclick="closeModal()" class="btn-order" style="width: 100%; margin-top: 15px; background-color: #7f8c8d;">Đóng cửa sổ</button>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Cửa Hàng Y Tế & Dinh Dưỡng. Hỗ trợ thanh toán QR Code nhanh chóng.</p>
+    </footer>
+
+    <script>
+        // Cấu hình Google Form của bạn
+        // BƯỚC CẦN LÀM: Thay thế chuỗi ID phía dưới bằng mã ID thật trên link Google Form của bạn
+        const FORM_ID = "1FAIpQLSfD_YOUR_GOOGLE_FORM_ID_HERE"; 
+
+        const products = [
+            { id: 1, title: "Sữa Dinh Dưỡng Y Học Cao Cấp", tag: "Thực phẩm dinh dưỡng", desc: "Dành cho người suy nhược cơ thể, bệnh nhân sau phẫu thuật cần phục hồi sức khỏe nhanh chóng.", price: 450000, image: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=500&q=80" },
+            { id: 2, title: "Ngũ Cốc Dinh Dưỡng Cho Người Tiểu Đường", tag: "Thực phẩm dinh dưỡng", desc: "Chỉ số đường huyết thấp (GI tốt), giàu chất xơ tự nhiên, hỗ trợ tim mạch và kiểm soát đường huyết.", price: 290000, image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=500&q=80" },
+            { id: 3, title: "Máy Đo Đường Huyết GlucoMeter", tag: "Thiết bị y tế", desc: "Thiết bị kiểm tra đường huyết tại nhà thế hệ mới, cho kết quả chính xác nhanh chóng trong 5 giây.", price: 680000, image: "https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&w=500&q=80" },
+            { id: 4, title: "Máy Đo Huyết Áp Bắp Tay Tự Động", tag: "Thiết bị y tế", desc: "Công nghệ đo Intellisense tiên tiến, tự động cảnh báo nhịp tim bất thường và lưu kết quả.", price: 850000, image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=500&q=80" },
+            { id: 5, title: "Nhiệt Kế Hồng Ngoại Đa Năng", tag: "Thiết bị y tế", desc: "Đo nhiệt độ không cần tiếp xúc qua trán chỉ trong 1 giây. An toàn tuyệt đối cho trẻ nhỏ.", price: 350000, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=500&q=80" }
+        ];
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function displayProducts(productsToRender) {
+            const grid = document.getElementById('productGrid');
+            const noResults = document.getElementById('noResults');
+            grid.innerHTML = "";
+
+            if (productsToRender.length === 0) {
+                noResults.style.display = "block";
+                return;
+            } else {
+                noResults.style.display = "none";
+            }
+
+            productsToRender.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.title}" class="product-image">
+                    <div class="product-info">
+                        <span class="product-tag">${product.tag}</span>
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-desc">${product.desc}</p>
+                        <div class="product-price">${formatMoney(product.price)}</div>
+                        <button onclick="openModal('${product.title}', ${product.price})" class="btn-order">Đặt Mua Ngay</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function searchProducts() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filteredProducts = products.filter(product => {
+                return product.title.toLowerCase().includes(keyword) || product.desc.toLowerCase().includes(keyword);
+            });
+            displayProducts(filteredProducts);
+        }
+
+        let selectedPrice = 0;
+
+        function openModal(productTitle, productPrice) {
+            document.getElementById('formProductTitle').value = productTitle;
+            selectedPrice = productPrice;
+            document.getElementById('orderForm').style.display = "block";
+            document.getElementById('qrSection').style.display = "none";
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('orderForm').reset();
+        }
+
+        // HÀM GỬI NGẦM DỮ LIỆU SANG GOOGLE FORM & HIỆN MÃ QR
+        function handlePayment(event) {
+            event.preventDefault(); 
+
+            const name = document.getElementById('cusName').value.trim();
+            const phone = document.getElementById('cusPhone').value.trim();
+            const address = document.getElementById('cusAddress').value.trim();
+            const productTitle = document.getElementById('formProductTitle').value;
+
+            // 1. Tạo form gửi dữ liệu ngầm bằng API fetch (chế độ no-cors để chặn chuyển trang)
+            const formUrl = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
+            const formData = new FormData();
+            
+            // Ép các entry ID bạn cung cấp vào đúng trường dữ liệu tương ứng
+            formData.append('entry.10180431', name);         // Trường Họ và Tên
+            formData.append('entry.20027136', phone);        // Trường Số điện thoại
+            formData.append('entry.497148925', address + " (Sản phẩm: " + productTitle + ")"); // Trường Địa chỉ (Kèm luôn tên sản phẩm để bạn dễ gom đơn)
+
+            // Tiến hành gửi ngầm dữ liệu đi
+            fetch(formUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            }).then(() => {
+                console.log("Đã gửi đơn hàng thành công lên Google Form!");
+            }).catch((error) => {
+                console.error("Lỗi khi gửi dữ liệu: ", error);
+            });
+
+            // 2. Xử lý tạo và hiển thị Mã QR ngân hàng của bạn
+            const memo = `DH ${phone}`; 
+            const bankId = "970415"; // MB Bank
+            const accountNo = "0828380330";
+            const template = "compact2"; 
+            
+            const vietQrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.jpg?amount=${selectedPrice}&addInfo=${encodeURIComponent(memo)}&accountName=DANG%20NGOC%20TIEN%20THANH`;
+
+            document.getElementById('qrImage').src = vietQrUrl;
+            document.getElementById('orderSummary').innerText = `Tổng tiền: ${formatMoney(selectedPrice)}`;
+            document.getElementById('transferMemo').innerHTML = `Nội dung CK bắt buộc: <strong>${memo}</strong>`;
+
+            // Ẩn form đi và bật phần QR Code lên
+            document.getElementById('orderForm').style.display = "none";
+            document.getElementById('qrSection').style.display = "block";
+        }
+
+        window.onload = function() {
+            displayProducts(products);
+        };
+    </script>
+</body>
+</html>
